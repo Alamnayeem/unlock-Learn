@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Unlock &amp; Learn AI</string>
+    <string name="service_notification_title">Unlock &amp; Learn AI Active</string>
+    <string name="service_notification_desc">Listening for screen unlocks to show your flashcards.</string>
+</resources>
