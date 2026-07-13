@@ -4,7 +4,12 @@
         <item name="android:windowBackground">#121212</item>
     </style>
 
-    <style name="Theme.UnlockAndLearnAI.Overlay" parent="Theme.UnlockAndLearnAI">
-        <!-- Overlay properties are handled programmatically in UnlockActivity.kt -->
+    <style name="Theme.UnlockAndLearnAI.Overlay" parent="android:Theme.Translucent.NoTitleBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.6</item>
     </style>
 </resources>

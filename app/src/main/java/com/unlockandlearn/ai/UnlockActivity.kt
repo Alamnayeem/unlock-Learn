@@ -51,7 +51,7 @@ class UnlockActivity : ComponentActivity() {
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Color(0xFF020205)
+                    color = Color.Transparent
                 ) {
                     if (isLoading) {
                         Box(
@@ -78,7 +78,7 @@ class UnlockActivity : ComponentActivity() {
                                 onMarkAsLearned = {
                                     viewModel.incrementTodayCount()
                                     viewModel.updateFlashcard(card.copy(learned = true))
-                                    viewModel.loadNextOverlayCard()
+                                    finish()
                                 },
                                 onFavoriteToggle = {
                                     viewModel.updateFlashcard(card.copy(favorite = !card.favorite))

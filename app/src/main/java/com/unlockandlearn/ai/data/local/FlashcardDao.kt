@@ -18,7 +18,7 @@ interface FlashcardDao {
     @Query("SELECT * FROM flashcards WHERE id = :id LIMIT 1")
     suspend fun getFlashcardById(id: Int): Flashcard?
 
-    @Query("SELECT * FROM flashcards WHERE (title LIKE '%' || :query || '%' OR front LIKE '%' || :query || '%' OR back LIKE '%' || :query || '%' OR category LIKE '%' || :query || '%')")
+    @Query("SELECT * FROM flashcards WHERE (title LIKE '%' || :query || '%' OR front LIKE '%' || :query || '%' OR back LIKE '%' || :query || '%' OR category LIKE '%' || :query || '%' OR tags LIKE '%' || :query || '%' OR difficulty LIKE '%' || :query || '%') ORDER BY dateCreated DESC")
     fun searchFlashcards(query: String): Flow<List<Flashcard>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -32,6 +32,12 @@ interface FlashcardDao {
 
     @Query("SELECT COUNT(*) FROM flashcards")
     fun getCount(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM flashcards")
+    suspend fun getCountVal(): Int
+
+    @Query("DELETE FROM flashcards")
+    suspend fun clearAll()
 
     @Query("SELECT COUNT(*) FROM flashcards WHERE learned = 1")
     fun getLearnedCount(): Flow<Int>

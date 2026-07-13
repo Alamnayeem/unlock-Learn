@@ -16,6 +16,7 @@ data class Flashcard(
     val example: String = "",
     val pronunciation: String = "",
     val notes: String = "",
+    val tags: String = "",
     val favorite: Boolean = false,
     val learned: Boolean = false,
     val dateCreated: Long = System.currentTimeMillis()

@@ -20,6 +20,14 @@ class FlashcardRepository(private val flashcardDao: FlashcardDao) {
         return flashcardDao.getFlashcardById(id)
     }
 
+    suspend fun getCountVal(): Int {
+        return flashcardDao.getCountVal()
+    }
+
+    suspend fun clearAll() {
+        flashcardDao.clearAll()
+    }
+
     suspend fun insertFlashcard(flashcard: Flashcard): Long {
         return flashcardDao.insertFlashcard(flashcard)
     }
