@@ -22,15 +22,29 @@ jobs:
         cache: gradle
 
     - name: Grant Execute Permission for Gradlew
-      run: chmod +x ./gradlew
-      working-directory: ./android-project
+      run: |
+        if [ -d "android-project" ]; then
+          cd android-project
+        fi
+        chmod +x ./gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug
-      working-directory: ./android-project
+      run: |
+        if [ -d "android-project" ]; then
+          cd android-project
+        fi
+        ./gradlew assembleDebug
+
+    - name: Copy Built APK to root
+      run: |
+        if [ -d "android-project" ]; then
+          cp android-project/app/build/outputs/apk/debug/app-debug.apk ./app-debug.apk
+        else
+          cp app/build/outputs/apk/debug/app-debug.apk ./app-debug.apk
+        fi
 
     - name: Upload Debug APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: unlock-and-learn-debug-apk
-        path: android-project/app/build/outputs/apk/debug/app-debug.apk
+        path: app-debug.apk
