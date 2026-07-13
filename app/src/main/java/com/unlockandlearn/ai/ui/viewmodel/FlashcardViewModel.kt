@@ -38,6 +38,9 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _currentOverlayCard = MutableStateFlow<Flashcard?>(null)
     val currentOverlayCard = _currentOverlayCard.asStateFlow()
 
+    private val _isOverlayLoading = MutableStateFlow(true)
+    val isOverlayLoading = _isOverlayLoading.asStateFlow()
+
     init {
         val database = FlashcardDatabase.getDatabase(application, viewModelScope)
         val dao = database.flashcardDao()
@@ -78,18 +81,25 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
 
     // Load next random unlearned card for lockscreen display
     fun loadNextOverlayCard() {
+        _isOverlayLoading.value = true
         viewModelScope.launch(Dispatchers.IO) {
-            val list = unlearnedFlashcards.value
-            if (list.isNotEmpty()) {
-                val nextCard = list.random()
-                _currentOverlayCard.value = nextCard
-            } else {
-                val fullList = allFlashcards.value
-                if (fullList.isNotEmpty()) {
-                    _currentOverlayCard.value = fullList.random()
+            try {
+                val list = repository.unlearnedFlashcards.first()
+                if (list.isNotEmpty()) {
+                    val nextCard = list.random()
+                    _currentOverlayCard.value = nextCard
                 } else {
-                    _currentOverlayCard.value = null
+                    val fullList = repository.allFlashcards.first()
+                    if (fullList.isNotEmpty()) {
+                        _currentOverlayCard.value = fullList.random()
+                    } else {
+                        _currentOverlayCard.value = null
+                    }
                 }
+            } catch (e: Exception) {
+                _currentOverlayCard.value = null
+            } finally {
+                _isOverlayLoading.value = false
             }
         }
     }
