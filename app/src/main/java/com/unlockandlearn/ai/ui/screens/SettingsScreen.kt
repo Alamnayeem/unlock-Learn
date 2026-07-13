@@ -3,6 +3,10 @@ package com.unlockandlearn.ai.ui.screens
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.net.Uri
+import android.os.Build
+import android.os.PowerManager
+import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -54,6 +58,26 @@ fun SettingsScreen(viewModel: FlashcardViewModel) {
     var showPrivacyDialog by remember { mutableStateOf(false) }
     var showImportDialog by remember { mutableStateOf(false) }
     var showExportDialog by remember { mutableStateOf(false) }
+
+    val powerManager = remember { context.getSystemService(Context.POWER_SERVICE) as PowerManager }
+    var isIgnoringBatteryOptimizations by remember {
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                powerManager.isIgnoringBatteryOptimizations(context.packageName)
+            } else {
+                true
+            }
+        )
+    }
+    var canDrawOverlays by remember {
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Settings.canDrawOverlays(context)
+            } else {
+                true
+            }
+        )
+    }
 
     val categoriesList = listOf("All", "Physics", "Languages", "Mathematics", "Biology", "Psychology", "General")
 
@@ -361,6 +385,145 @@ fun SettingsScreen(viewModel: FlashcardViewModel) {
                             Text(theme, fontSize = 12.sp)
                         }
                     }
+                }
+            }
+        }
+
+        // SECTION 3.5: BACKGROUND STABILITY & OPTIMIZATION
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E2E)),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.BatteryAlert, contentDescription = null, tint = Color(0xFFEAB308))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Background Run & Stability", fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                }
+
+                Text(
+                    "Android devices often stop background processes to save battery. To ensure Unlock & Learn works consistently, please verify the following settings:",
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+
+                Divider(color = Color.White.copy(alpha = 0.05f))
+
+                // Battery optimization setting
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1.5f)) {
+                        Text("Battery Saver Exemption", color = Color.White, fontSize = 14.sp)
+                        Text(
+                            if (isIgnoringBatteryOptimizations) "Unrestricted (Recommended)" else "Optimized (Service may be killed)",
+                            color = if (isIgnoringBatteryOptimizations) Color(0xFF10B981) else Color(0xFFEF4444),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                try {
+                                    val intent = android.content.Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                                    context.startActivity(intent)
+                                    Toast.makeText(context, "Select 'All Apps', find 'Unlock & Learn', and change to 'Unrestricted'", Toast.LENGTH_LONG).show()
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Could not open battery settings", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isIgnoringBatteryOptimizations) Color(0xFF2E2E3E) else Color(0xFFEAB308)
+                        ),
+                        modifier = Modifier.weight(1.5f)
+                    ) {
+                        Text(if (isIgnoringBatteryOptimizations) "Configured" else "Disable Optimization", fontSize = 11.sp, color = Color.White)
+                    }
+                }
+
+                Divider(color = Color.White.copy(alpha = 0.05f))
+
+                // Overlay drawing setting
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1.5f)) {
+                        Text("Draw Over Other Apps", color = Color.White, fontSize = 14.sp)
+                        Text(
+                            if (canDrawOverlays) "Permission Granted" else "Permission Denied",
+                            color = if (canDrawOverlays) Color(0xFF10B981) else Color(0xFFEF4444),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                try {
+                                    val intent = android.content.Intent(
+                                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                        android.net.Uri.parse("package:${context.packageName}")
+                                    )
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Could not open overlay permission screen", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (canDrawOverlays) Color(0xFF2E2E3E) else Color(0xFFEAB308)
+                        ),
+                        modifier = Modifier.weight(1.5f)
+                    ) {
+                        Text(if (canDrawOverlays) "Granted" else "Grant Permission", fontSize = 11.sp, color = Color.White)
+                    }
+                }
+
+                Divider(color = Color.White.copy(alpha = 0.05f))
+
+                // Guide/Info tips for background reliability
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFEAB308).copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+                        .padding(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFFEAB308), modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "Tips for 100% Stability:\n• Lock this app in your phone's 'Recent Apps' tray.\n• Enable 'Auto-start' / 'Autostart' in phone settings if available on your model (Xiaomi, Oppo, Vivo, Samsung, Realme).",
+                        fontSize = 11.sp,
+                        color = Color.LightGray,
+                        lineHeight = 15.sp
+                    )
+                }
+
+                // Refresh Status Button
+                Button(
+                    onClick = {
+                        isIgnoringBatteryOptimizations = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            powerManager.isIgnoringBatteryOptimizations(context.packageName)
+                        } else {
+                            true
+                        }
+                        canDrawOverlays = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            android.provider.Settings.canDrawOverlays(context)
+                        } else {
+                            true
+                        }
+                        Toast.makeText(context, "Status Refreshed!", Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Refresh Optimization Status", fontSize = 12.sp)
                 }
             }
         }
