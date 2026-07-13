@@ -1,0 +1,13 @@
+<resources>
+    <style name="Theme.UnlockAndLearnAI" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#121212</item>
+        <item name="android:windowBackground">#121212</item>
+    </style>
+
+    <style name="Theme.UnlockAndLearnAI.Overlay" parent="Theme.UnlockAndLearnAI">
+        <item name="android:showOnLockScreen">true</item>
+        <item name="android:windowShowWhenLocked">true</item>
+        <item name="android:windowTurnScreenOn">true</item>
+        <item name="android:windowKeepScreenOn">true</item>
+    </style>
+</resources>
