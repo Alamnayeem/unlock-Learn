@@ -159,7 +159,7 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private fun updateStreak() {
-        val lastActiveDay = prefs.getString("last_active_day", "")
+        val lastActiveDay = prefs.getString("last_active_day", "") ?: ""
         val today = getTodayDateKey()
         
         if (lastActiveDay.isEmpty()) {
